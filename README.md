@@ -1,0 +1,2 @@
+# Tugas-Besar-1-Stima
+TUGAS BESAR 1 STRATEGI ALGORITMA

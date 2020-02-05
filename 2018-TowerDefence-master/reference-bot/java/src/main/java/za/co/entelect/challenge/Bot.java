@@ -191,7 +191,7 @@ public class Bot {
                 .filter(c -> c.x == x && isCellEmpty(x, c.y))
                 .collect(Collectors.toList());
     }
-
+    
     /**
      * Checks if cell at x,y is empty
      *

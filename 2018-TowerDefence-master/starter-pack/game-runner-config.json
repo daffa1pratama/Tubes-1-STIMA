@@ -3,7 +3,7 @@
   "game-config-file-location": "./game-config.properties",
   "verbose-mode": true,
   "max-runtime-ms": 2000,
-  "player-a": "console",
+  "player-a": "./imba-bot/java",
   "player-b": "./starter-bots/java",
   "is-tournament-mode": false
 }

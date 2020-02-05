@@ -23,7 +23,7 @@ public class Bot {
      **/
     public Bot(GameState gameState) {
         this.gameState = gameState;
-        gameState.getGameMap();
+        // gameState.getGameMap();
     }
 
     /**

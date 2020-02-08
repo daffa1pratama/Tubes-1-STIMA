@@ -1,7 +1,7 @@
 {
-	"author": "John Doe",
-	"email": "john.doe@example.com",
-	"nickName": "James",
+	"author": "SilpKont",
+	"email": "silpKont@std.stei.itb.ac.id",
+	"nickName": "SilpKont",
 	"botLocation": "/target",
 	"botFileName": "reference-bot-jar-with-dependencies.jar",
 	"botLanguage": "java"

@@ -64,8 +64,3 @@ if (player do nothing){
     BUILD ATTACK/DEFENSE
 }
 
-BOT         ENEMY
-energy      energy
-attack      defense
-energy      attack
-defense     defense

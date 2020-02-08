@@ -38,22 +38,119 @@ public class Bot {
      */
     public String run () {
         String command = "";
-
-        if (gameState.gameDetails.round == 0) {
-            command = buildEnergyBuilding(0);
-        }
-
+        
+        // if (gameState.gameDetails.round == 0) {
+        //     command = buildEnergyBuilding(0);
+        // }
+        
+        // Kalau enemy gaada attack dan kita gaada energy, build energy dulu
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
-                int +enemyDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE, i).size();
-                // int myEnergyAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ENERGY, i).size();
+                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int selfEnergyAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ENERGY, i).size();
+
+                if (enemyAttackAt == 0 && selfEnergyAt == 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.ENERGY)) {
+                        command = buildEnergyBuilding(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Kalau enemy ada 2 attack di y, build defense di y
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
                 
-                if (enemyDefenseAt == 0){
+                if (enemyAttackAt > 1) {
+                    if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+                        command = buildDefenseBuilding(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Kalau udah ada attack, build attack dibelakang lagi
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
+
+                if (selfAttackAt > 0) {
                     if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
                         command = buildAttackBuilding(i);
                     }
                     break;
                 }
+            }
+        }
+
+        // Kalau enemy build attack di y, build attack di y
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                
+                if (enemyAttackAt > 0 && selfAttackAt == 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.ATTACK)){
+                        command = buildAttackBuilding(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+
+        // Kalau enemy punya defense y, build attack di y lain
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int enemyDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE, i).size();
+
+                if (enemyDefenseAt > 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+                        int randomNumber = new Random().nextInt(7);
+                        
+                        while (randomNumber == i) {
+                            randomNumber = new Random().nextInt(7);
+                        }
+
+                        command = buildAttackBuilding(randomNumber);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Kalau udah ada defense, build attack dibelakang
+        if (command.equals("")){
+            for (int i = 0; i < mapHeight; i++) {
+                int selfDefenseAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.DEFENSE, i).size();
+
+                if (selfDefenseAt > 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
+                        command = buildAttackBuilding(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Kalau enemy punya > 4 attack, pakai iron curtain
+
+        // Kalau energy turah turah, baru build tesla
+        if (command.equals("")) {
+            if (getEnergy(PlayerType.A) >= 450) {
+                command = buildTeslaTower(4);
+            }
+        }
+
+        // Gaada case yang masuk, build attack
+        if (command.equals("")) {
+            int randomNumber = new Random().nextInt(7);
+
+            if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+                command = buildDefenseBuilding(randomNumber);
             }
         }
 
@@ -138,17 +235,15 @@ public class Bot {
             if (isEmptyCell(i, y)) {
                 return buildCommand(i, y, BuildingType.ENERGY);
             }
-            break;
         }
         return "";
     }
     
     private String buildAttackBuilding (int y) {
-        for (int i = 2; i <= 4; i++) {
+        for (int i = 5; i >= 1; i--) {
             if (isEmptyCell(i, y)) {
                 return buildCommand(i, y, BuildingType.ATTACK);
             }
-            break;
         }
         return "";
     }
@@ -158,7 +253,6 @@ public class Bot {
             if (isEmptyCell(i, y)) {
                 return buildCommand(i, y, BuildingType.DEFENSE);
             }
-            break;
         }
         return "";
     }

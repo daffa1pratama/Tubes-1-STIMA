@@ -22,7 +22,6 @@ public class Bot {
 
     /**
      * Constructor Bot
-     * 
      * @param gameState
      */
     public Bot (GameState gameState) {
@@ -33,17 +32,19 @@ public class Bot {
 
     /**
      * Main Logic
-     * 
      * @return command
      */
     public String run () {
         String command = "";
         
-        // if (gameState.gameDetails.round == 0) {
-        //     command = buildEnergyBuilding(0);
-        // }
+        // Jika energy lebih dari 450, maka bisa bangun tesla
+        // Ambil angka 450 karena building cost dan attack cost mahal
+        if (getEnergy(PlayerType.A) >= 450) {
+            command = buildTeslaTower(4);
+        }
         
-        // Kalau enemy gaada attack dan kita gaada energy, build energy dulu
+        // Jika enemy tidak punya attack building di row i, maka build energy building di row i
+        // Agar energy building aman dari ancaman
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
@@ -58,7 +59,8 @@ public class Bot {
             }
         }
 
-        // Kalau enemy ada 2 attack di y, build defense di y
+        // Jika enemy punya 2 attack building di row i, maka bot build defense building di row i
+        // Agar pembangunan defense bisa optimal
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
@@ -72,7 +74,8 @@ public class Bot {
             }
         }
 
-        // Kalau udah ada attack, build attack dibelakang lagi
+        // Jika bot punya 1 attack building di row i, maka build lagi attack building dibelakangnya
+        // Agar serangan dapat maksimal dan menekan pertahanan lawan
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
@@ -86,7 +89,8 @@ public class Bot {
             }
         }
 
-        // Kalau enemy build attack di y, build attack di y
+        // Jika enemy punya 1 attack building di row i, maka bot build attack building di row yang sama
+        // Mengorbankan bangunan dan menghancurkan attack musuh
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
@@ -101,8 +105,8 @@ public class Bot {
             }
         }
 
-
-        // Kalau enemy punya defense y, build attack di y lain
+        // Jika enemy punya minimal 1 defense building di row i, maka bot build attack di row lain
+        // Agar musuh terkecoh dengan membangun defense building
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE, i).size();
@@ -122,7 +126,8 @@ public class Bot {
             }
         }
 
-        // Kalau udah ada defense, build attack dibelakang
+        // Jika bot punya defense building di row i, maka build attack building di belakangnya
+        // Agar penyerangan lebih aman dengan ada defense building di depan
         if (command.equals("")){
             for (int i = 0; i < mapHeight; i++) {
                 int selfDefenseAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.DEFENSE, i).size();
@@ -136,16 +141,25 @@ public class Bot {
             }
         }
 
-        // Kalau enemy punya > 4 attack, pakai iron curtain
-
-        // Kalau energy turah turah, baru build tesla
+        // Jika enemy punya 8 attack building pada seluruh map, maka gunakan iron curtain
+        // Skill digunakan untuk menahan serangan musuh yang banyak
         if (command.equals("")) {
-            if (getEnergy(PlayerType.A) >= 450) {
-                command = buildTeslaTower(4);
+            int countEnemyAttack = 0;
+            int ctr;
+
+            for (int i = 0; i < mapHeight; i++) {
+                ctr = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                countEnemyAttack += ctr;
+            }
+
+            if (countEnemyAttack >= 8 && isEnoughEnergyToBuild(BuildingType.IRONCURTAIN)) {
+                command = buildCommand(7, 7, BuildingType.IRONCURTAIN);
             }
         }
 
-        // Gaada case yang masuk, build attack
+        // Jika case diatas tidak ada yang memenuhi, maka build defense pada sembarang row
+        // Untuk memancing agar bot pada turn selanjutnya membangun attack building
+        // sehingga saat musuh membangun defense building, attack dari bot sudah siap
         if (command.equals("")) {
             int randomNumber = new Random().nextInt(7);
 
@@ -182,7 +196,7 @@ public class Bot {
             return cell.getBuildings().size() <= 0;
         }
         else {
-            System.out.println("Invalid cell");
+            System.out.println("Invalid");
         }
         return true;
     }
@@ -229,7 +243,12 @@ public class Bot {
     private Boolean isEnoughEnergyToBuild (BuildingType building) {
         return getEnergy(PlayerType.A) >= getBuildingCost(building);
     }
-
+    
+    /**
+     * Build energy building
+     * @param y
+     * @return
+     */
     private String buildEnergyBuilding (int y) {
         for (int i = 0; i <= 1; i++) {
             if (isEmptyCell(i, y)) {
@@ -239,6 +258,11 @@ public class Bot {
         return "";
     }
     
+    /**
+     * Build attack building
+     * @param y
+     * @return
+     */
     private String buildAttackBuilding (int y) {
         for (int i = 5; i >= 1; i--) {
             if (isEmptyCell(i, y)) {
@@ -248,6 +272,11 @@ public class Bot {
         return "";
     }
 
+    /**
+     * Build defense building
+     * @param y
+     * @return
+     */
     private String buildDefenseBuilding (int y) {
         for (int i = 6; i <= 7; i++) {
             if (isEmptyCell(i, y)) {
@@ -257,6 +286,11 @@ public class Bot {
         return "";
     }
     
+    /**
+     * Build tesla tower
+     * @param y
+     * @return
+     */
     private String buildTeslaTower (int y) {
         if (isEmptyCell(5, y)) {
             return buildCommand(5, y, BuildingType.TESLA);
@@ -264,6 +298,13 @@ public class Bot {
         return "";
     }
     
+    /**
+     * Build command (x,y,building)
+     * @param x
+     * @param y
+     * @param building
+     * @return
+     */
     private String buildCommand (int x, int y, BuildingType building) {
         return String.format("%d,%d,%s", x, y, building.getCommandCode());
     }

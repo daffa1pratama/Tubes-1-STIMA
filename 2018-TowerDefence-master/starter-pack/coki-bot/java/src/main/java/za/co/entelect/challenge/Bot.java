@@ -36,6 +36,20 @@ public class Bot {
      */
     public String run () {
         String command = "";
+
+        // Jika tiap row i belum ada energy, maka bot bangun energy building di row i
+        // Agar energy tetap aman dan bisa jadi tumbal serangan
+        for (int i = 0; i < mapHeight; i++) {
+            int countSelfEnergy = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ENERGY, i).size();
+
+            if (countSelfEnergy == 0) {
+                if (isEnoughEnergyToBuild(BuildingType.ENERGY)) {
+                    command = buildEnergyBuilding(i);
+                }
+                break;
+            }
+        }
+
         
         // Jika energy lebih dari 450, maka bisa bangun tesla
         // Ambil angka 450 karena building cost dan attack cost mahal
@@ -43,14 +57,15 @@ public class Bot {
             command = buildTeslaTower(4);
         }
         
-        // Jika enemy tidak punya attack building di row i, maka build energy building di row i
+        // Jika enemy tidak punya attack building di row i atau self punya defense di row i, maka build energy building di row i
         // Agar energy building aman dari ancaman
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
                 int selfEnergyAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ENERGY, i).size();
+                int selfDefenseAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.DEFENSE, i).size();
 
-                if (enemyAttackAt == 0 && selfEnergyAt == 0) {
+                if ((enemyAttackAt == 0 || selfDefenseAt > 0) && selfEnergyAt == 0) {
                     if (isEnoughEnergyToBuild(BuildingType.ENERGY)) {
                         command = buildEnergyBuilding(i);
                     }
@@ -59,13 +74,41 @@ public class Bot {
             }
         }
 
-        // Jika enemy punya 2 attack building di row i, maka bot build defense building di row i
+        // Jika enemy punya 1 attack building di row i, maka bot build attack building di row yang sama
+        // Mengorbankan bangunan dan menghancurkan attack musuh
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int enemyDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE, i).size();
+                int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                
+                if (enemyAttackAt == 1 && selfAttackAt == 0 && enemyDefenseAt == 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.ATTACK)){
+                        command = buildAttackBuilding(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Jika enemy punya attack building di row i dan self hanya punya building 1, maka bot build defense building di row i
         // Agar pembangunan defense bisa optimal
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
                 int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
-                
-                if (enemyAttackAt > 1) {
+                int selfDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE, i).size();
+                int selfAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int selfEnergyAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ENERGY, i).size();
+
+                // if (enemyAttackAt > 0 || (selfEnergyAt > 0 && (selfAttackAt + selfDefenseAt) == 0)){
+                if (enemyAttackAt > 3) {
+                    if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+                        command = buildDefenseBuilding(i);
+                    }
+                    break;
+                }
+
+                if (enemyAttackAt > 1 && selfDefenseAt == 0){
                     if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
                         command = buildDefenseBuilding(i);
                     }
@@ -82,22 +125,6 @@ public class Bot {
 
                 if (selfAttackAt > 0) {
                     if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
-                        command = buildAttackBuilding(i);
-                    }
-                    break;
-                }
-            }
-        }
-
-        // Jika enemy punya 1 attack building di row i, maka bot build attack building di row yang sama
-        // Mengorbankan bangunan dan menghancurkan attack musuh
-        if (command.equals("")) {
-            for (int i = 0; i < mapHeight; i++) {
-                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
-                int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
-                
-                if (enemyAttackAt > 0 && selfAttackAt == 0) {
-                    if (isEnoughEnergyToBuild(BuildingType.ATTACK)){
                         command = buildAttackBuilding(i);
                     }
                     break;

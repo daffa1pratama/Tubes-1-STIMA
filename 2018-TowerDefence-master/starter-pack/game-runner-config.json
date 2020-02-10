@@ -3,7 +3,7 @@
   "game-config-file-location": "./game-config.properties",
   "verbose-mode": true,
   "max-runtime-ms": 2000,
-  "player-a": "./imba-bot/java",
-  "player-b": "./reference-bot/java",
+  "player-a": "./coki-bot/java",
+  "player-b": "./muslim-bot/java",
   "is-tournament-mode": false
 }

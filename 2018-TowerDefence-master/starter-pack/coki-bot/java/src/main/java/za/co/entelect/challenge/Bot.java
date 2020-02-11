@@ -189,8 +189,13 @@ public class Bot {
         if (command.equals("")) {
             int randomNumber = new Random().nextInt(7);
 
-            if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+            if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
                 command = buildAttackBuilding(randomNumber);
+                
+                while (command.equals("")) {
+                    randomNumber = new Random().nextInt(7);
+                    command = buildAttackBuilding(randomNumber);
+                }
             }
         }
 

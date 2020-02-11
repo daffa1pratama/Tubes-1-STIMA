@@ -56,6 +56,22 @@ public class Bot {
         if (getEnergy(PlayerType.A) >= 600) {
             command = buildTeslaTower(4);
         }
+
+        if (command.equals("")) {
+            for (int i = 0; i < mapHeight; i++) {
+                int enemyAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int enemyEnergyAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ENERGY, i).size();
+                int enemyDefenseAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.DEFENSE , i).size();
+                int selfAttackAt = getAllBuildingInRow(PlayerType.A, b -> b.buildingType == BuildingType.ATTACK, i).size();
+                int totalEnemy = enemyAttackAt + enemyEnergyAt + enemyDefenseAt;
+
+                if (totalEnemy == 0 && selfAttackAt == 0) {
+                    if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
+                        command = buildAttackBuilding(i);
+                    }
+                }
+            }
+        }
         
         // Jika enemy tidak punya attack building di row i atau self punya defense di row i, maka build energy building di row i
         // Agar energy building aman dari ancaman
@@ -189,12 +205,12 @@ public class Bot {
         if (command.equals("")) {
             int randomNumber = new Random().nextInt(7);
 
-            if (isEnoughEnergyToBuild(BuildingType.ATTACK)) {
-                command = buildAttackBuilding(randomNumber);
+            if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
+                command = buildDefenseBuilding(randomNumber);
                 
                 while (command.equals("")) {
                     randomNumber = new Random().nextInt(7);
-                    command = buildAttackBuilding(randomNumber);
+                    command = buildDefenseBuilding(randomNumber);
                 }
             }
         }

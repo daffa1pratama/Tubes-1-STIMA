@@ -4,6 +4,6 @@
   "verbose-mode": true,
   "max-runtime-ms": 2000,
   "player-a": "./coki-bot/java",
-  "player-b": "./muslim-bot/java",
+  "player-b": "./ibnu-bot/java",
   "is-tournament-mode": false
 }

@@ -91,7 +91,7 @@ public class Bot {
             }
         }
 
-        // Jika enemy punya attack building di row i dan self hanya punya building 1, maka bot build defense building di row i
+        // Jika enemy punya 3 attack building di row i atau 1 attack dan self tidak punya defense, maka build defense
         // Agar pembangunan defense bisa optimal
         if (command.equals("")) {
             for (int i = 0; i < mapHeight; i++) {
@@ -100,7 +100,6 @@ public class Bot {
                 int selfAttackAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ATTACK, i).size();
                 int selfEnergyAt = getAllBuildingInRow(PlayerType.B, b -> b.buildingType == BuildingType.ENERGY, i).size();
 
-                // if (enemyAttackAt > 0 || (selfEnergyAt > 0 && (selfAttackAt + selfDefenseAt) == 0)){
                 if (enemyAttackAt > 3) {
                     if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
                         command = buildDefenseBuilding(i);

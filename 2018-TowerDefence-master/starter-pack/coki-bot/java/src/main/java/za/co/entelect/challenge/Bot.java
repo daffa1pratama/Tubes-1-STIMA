@@ -51,9 +51,9 @@ public class Bot {
         }
 
         
-        // Jika energy lebih dari 450, maka bisa bangun tesla
-        // Ambil angka 450 karena building cost dan attack cost mahal
-        if (getEnergy(PlayerType.A) >= 450) {
+        // Jika energy lebih dari 600, maka bisa bangun tesla
+        // Ambil angka 600 karena building cost dan attack cost mahal
+        if (getEnergy(PlayerType.A) >= 600) {
             command = buildTeslaTower(4);
         }
         
@@ -190,7 +190,7 @@ public class Bot {
             int randomNumber = new Random().nextInt(7);
 
             if (isEnoughEnergyToBuild(BuildingType.DEFENSE)) {
-                command = buildDefenseBuilding(randomNumber);
+                command = buildAttackBuilding(randomNumber);
             }
         }
 
@@ -304,7 +304,7 @@ public class Bot {
      * @return
      */
     private String buildDefenseBuilding (int y) {
-        for (int i = 6; i <= 7; i++) {
+        for (int i = 7; i >= 7; i--) {
             if (isEmptyCell(i, y)) {
                 return buildCommand(i, y, BuildingType.DEFENSE);
             }

@@ -3,7 +3,7 @@
   "game-config-file-location": "./game-config.properties",
   "verbose-mode": true,
   "max-runtime-ms": 2000,
-  "player-a": "./coki-bot/java",
-  "player-b": "./ibnu-bot/java",
+  "player-a": "console",
+  "player-b": "./coki-bot/java",
   "is-tournament-mode": false
 }
